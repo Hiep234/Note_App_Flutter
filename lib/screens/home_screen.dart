@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:noteapp/screens/view_note_screen.dart';
 import 'package:noteapp/services/database_helper.dart';
-
 import '../models/notes_model.dart';
 import 'add_edit_screen.dart';
 
@@ -16,28 +15,28 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   List<Note> _notes = [];
-  final List<Color> _noteColors = [
-    Colors.amber,
-    Color(0xFF50C878),
-    Colors.redAccent,
-    Colors.blueAccent,
-    Colors.indigo,
-    Colors.purpleAccent,
-    Colors.pinkAccent,
-  ];
+  List<Note> _filteredNotes = [];
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _loadNotes();
   }
 
   Future<void> _loadNotes() async {
     final notes = await _databaseHelper.getNotes();
-
     setState(() {
       _notes = notes;
+      _filteredNotes = notes;
+    });
+  }
+
+  void _filterNotes(String query) {
+    setState(() {
+      _filteredNotes = _notes
+          .where((note) => note.title.toLowerCase().contains(query.toLowerCase()) || note.content.toLowerCase().contains(query.toLowerCase()))
+          .toList();
     });
   }
 
@@ -48,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
       return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     }
-    return '${dt.day}/${dt.month}/${dt.year}:${dt.minute.toString().padLeft(0, '0')}';
+    return '${dt.day}/${dt.month}/${dt.year}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -58,8 +57,14 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        title: Text(
-          "My Notes",
+        title: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            hintText: "Search notes...",
+            border: InputBorder.none,
+            prefixIcon: Icon(Icons.search, color: Colors.grey),
+          ),
+          onChanged: _filterNotes,
         ),
       ),
       body: GridView.builder(
@@ -69,9 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        itemCount: _notes.length,
+        itemCount: _filteredNotes.length,
         itemBuilder: (context, index) {
-          final note = _notes[index];
+          final note = _filteredNotes[index];
           final color = Color(int.parse(note.color));
 
           return GestureDetector(
