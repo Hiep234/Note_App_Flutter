@@ -120,13 +120,8 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
                     ),
                   ),
                   InkWell(
-                    onTap: () {
-                      _saveNote();
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ));
+                    onTap: () async {
+                      await _saveNote();
                     },
                     child: Container(
                       margin: EdgeInsets.all(20),
@@ -156,36 +151,31 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
   }
 
   Future<void> _saveNote() async {
-    if (_formKey.currentState!.validate()) {
-      final note = Note(
-        id: widget.note?.id,
-        title: _titleController.text,
-        content: _contentController.text,
-        color: _selectedColor.value.toString(),
-        dateTime: DateTime.now().toString(),
-      );
-
-      if (widget.note == null) {
-        await _databaseHelper.insertNote(note);
-      } else {
-        await _databaseHelper.updateNote(note);
-      }
-
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(),
-        ),
-      );
-    } else {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Cannot be empty!"),
-          backgroundColor: Colors.red,
-        ),
-      );
+    if (!_formKey.currentState!.validate()) {
+      return; // Dừng lại nếu form không hợp lệ, không cần thông báo
     }
+
+    final note = Note(
+      id: widget.note?.id,
+      title: _titleController.text,
+      content: _contentController.text,
+      color: _selectedColor.value.toString(),
+      dateTime: DateTime.now().toString(),
+    );
+
+    if (widget.note == null) {
+      await _databaseHelper.insertNote(note);
+    } else {
+      await _databaseHelper.updateNote(note);
+    }
+
+    // Chỉ chuyển về HomeScreen nếu dữ liệu hợp lệ
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeScreen(),
+      ),
+    );
   }
+
 }
