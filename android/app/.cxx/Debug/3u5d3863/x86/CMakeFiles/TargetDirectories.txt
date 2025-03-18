@@ -1,0 +1,2 @@
+C:/Users/TRAN HOANG HIEP/StudioProjects/noteapp/android/app/.cxx/Debug/3u5d3863/x86/CMakeFiles/edit_cache.dir
+C:/Users/TRAN HOANG HIEP/StudioProjects/noteapp/android/app/.cxx/Debug/3u5d3863/x86/CMakeFiles/rebuild_cache.dir
